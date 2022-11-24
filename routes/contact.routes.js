@@ -7,15 +7,16 @@ const Contact = require("../models/Contact.model");
 router.post("/jobs/:id/apply", async (req, res, next) => {
   // const currentUser = req.payload._id; (isto é para ter acesso ao ID do user q está loggedin)
   const currentUser = "637f646898adfa7a2b72dcac";
-  const { content, sender } = req.body;
+  const { content } = req.body;
   const { id } = req.params;
   try {
     const singleJob = await Job.findById(id);
     const newContact = await Contact.create({
       content,
       sender: currentUser,
+      receiver: singleJob.creator,
     });
-    res.status(200).json(singleJob);
+    res.status(200).json(newContact);
   } catch (error) {
     next(error);
   }

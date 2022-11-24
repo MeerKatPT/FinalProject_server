@@ -8,13 +8,14 @@ router.post("/jobs", async (req, res, next) => {
   // extract the info
   const { name, title, description } = req.body;
   // const currentUser = req.payload._id; (isto é para ter acesso ao ID do user q está loggedin)
-
+  const currentUser = "637f646898adfa7a2b72dcac";
   try {
     //Store new jobs in a variable
     const newJob = await Job.create({
       name,
       title,
       description,
+      creator: currentUser,
     });
     // now that we dont have a render (because we dont have views), we use res.json to send a json object.
     res.status(200).json(newJob);
@@ -24,6 +25,9 @@ router.post("/jobs", async (req, res, next) => {
     res.json(error);
   }
 });
+
+
+
 
 // GET route to show all jobs
 router.get("/jobs", async (req, res, next) => {
