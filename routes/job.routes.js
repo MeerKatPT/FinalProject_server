@@ -2,13 +2,14 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User.model");
 const Job = require("../models/Job.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 // POST route so we can create a new job
-router.post("/jobs", async (req, res, next) => {
+router.post("/jobs",  async (req, res, next) => {
   // extract the info
   const { name, title, description } = req.body;
-  // const currentUser = req.payload._id; (isto é para ter acesso ao ID do user q está loggedin)
-  const currentUser = "637f646898adfa7a2b72dcac";
+  // const currentUser = req.payload._id; // (isto é para ter acesso ao ID do user q está loggedin)
+  const currentUser = "637f80083ad6610eca824d9f"
   try {
     //Store new jobs in a variable
     const newJob = await Job.create({
@@ -26,9 +27,6 @@ router.post("/jobs", async (req, res, next) => {
   }
 });
 
-
-
-
 // GET route to show all jobs
 router.get("/jobs", async (req, res, next) => {
   try {
@@ -43,7 +41,7 @@ router.get("/jobs", async (req, res, next) => {
 router.get("/jobs/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const singleJob = await Job.findById(id);
+    const singleJob = await Job.findById(id).populate("applicant");
     res.status(200).json(singleJob);
   } catch (error) {
     next(error);
@@ -74,8 +72,8 @@ router.put("/jobs/:id", async (req, res, next) => {
 router.put("/jobs/:id/favorites", async (req, res, next) => {
   try {
     const { id } = req.params;
-    // const currentUser = req.payload._id; (isto é para ter acesso ao ID do user q está loggedin)
-    const currentUser = "637f646898adfa7a2b72dcac";
+    const currentUser = req.payload._id; // (isto é para ter acesso ao ID do user q está loggedin)
+
     // if (!currentUser.favorites.includes(id))
     const updateUserFavs = await User.findByIdAndUpdate(currentUser, {
       $push: { favoriteJobs: id },

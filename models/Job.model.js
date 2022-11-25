@@ -6,7 +6,7 @@ const jobSchema = new Schema(
     title: { type: String, required: true },
     description: { type: String, required: true },
     creator: { type: Schema.Types.ObjectId, ref: "User" },
-    applicant: [{ type: Schema.Types.ObjectId, ref: "User" }], // not sure about this. Make one just for user and join with Dev e Company?
+    applicant: [{ type: Schema.Types.ObjectId, ref: "User" }], 
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
