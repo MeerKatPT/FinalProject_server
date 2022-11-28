@@ -24,8 +24,8 @@ app.use("/auth", authRoutes);
 const jobRoutes = require("./routes/job.routes");
 app.use("/api", jobRoutes);
 
-const contactRoutes = require("./routes/contact.routes");
-app.use("/api", contactRoutes);
+const notesRoutes = require("./routes/notes.routes");
+app.use("/api", notesRoutes);
 
 const profileRoutes = require("./routes/profile.routes");
 app.use("/api", profileRoutes);

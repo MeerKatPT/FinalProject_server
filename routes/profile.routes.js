@@ -9,7 +9,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 router.get("/profile/:id", async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(id).populate("favoriteJobs");
     res.status(200).json(user);
   } catch (error) {
     console.log(error);
@@ -19,7 +19,7 @@ router.get("/profile/:id", async (req, res, next) => {
 
 //edit profile (put)
 
-router.put("/profile", isAuthenticated, async (req, res, next) => {
+router.put("/profile/:id", isAuthenticated, async (req, res, next) => {
   const currentUserId = req.payload._id;
   const {
     firstName,
@@ -28,9 +28,9 @@ router.put("/profile", isAuthenticated, async (req, res, next) => {
     education,
     experience,
     description,
-    skills,
     roles,
     profileImage,
+    favoriteJobs,
   } = req.body;
   try {
     const updateProfile = await User.findByIdAndUpdate(
@@ -42,9 +42,9 @@ router.put("/profile", isAuthenticated, async (req, res, next) => {
         education,
         experience,
         description,
-        skills,
         roles,
         profileImage,
+        favoriteJobs,
       },
       { new: true }
     );

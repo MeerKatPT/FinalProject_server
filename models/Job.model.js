@@ -5,8 +5,7 @@ const jobSchema = new Schema(
     name: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    creator: { type: Schema.Types.ObjectId, ref: "User" },
-    applicant: [{ type: Schema.Types.ObjectId, ref: "User" }], 
+    notes: [{ type: Schema.Types.ObjectId, ref: "Notes" }],
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

@@ -2,37 +2,42 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const User = require("../models/User.model");
+const Job = require("../models/Job.model");
 
-//GET route to display API jobs
-// isAuthicated 
-// if currentUser.accountType === company (res.json messagem de error forbiden) else faz normal.
+// GET all jobs from API
+
 router.get("/swipejobs", async (req, res, next) => {
   try {
     const resp = await axios.get(
-      "https://api.itjobs.pt/job/list.json?api_key=f537749e327048a0c83bbd1bafd040bd&limit=50"
+      "https://api.itjobs.pt/job/list.json?limit=25",
+      {
+        headers: { Accept: "application/json", "Accept-Encoding": "identity" },
+        params: { api_key: process.env.API_KEY },
+      }
     );
-    res.status(200).json(resp);
+    console.log(resp.data.toString("utf8"));
+    res.status(200).json(resp.data);
   } catch (error) {
     next(error);
   }
 });
 
-//GET route to display all users (depending on skills)
+// Open Specific JOB DETAILS
 
-router.get("/swipedevs", async (req, res, next) => {
-  const { skills } = req.query;
-  let user;
+router.get("/swipejobs/:id", async (req, res, next) => {
+  const { id } = req.params;
   try {
-    if (typeof skills === "object") {
-      user = await User.find({ skills: { $in: [...skills] } });
-    } else {
-      user = await User.find({ skills: { $in: skills } });
-    }
-
-    res.status(200).json(user);
+    const resp = await axios.get(
+      `https://api.itjobs.pt/job/get.json?id=${id}`,
+      {
+        headers: { Accept: "application/json", "Accept-Encoding": "identity" },
+        params: { api_key: process.env.API_KEY },
+      }
+    );
+    console.log(resp.data.toString("utf8"));
+    res.status(200).json(resp.data);
   } catch (error) {
     next(error);
   }
 });
-
 module.exports = router;

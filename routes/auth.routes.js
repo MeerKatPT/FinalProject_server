@@ -18,10 +18,10 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, accountType } = req.body;
+  const { email, password, firstName, lastName } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || accountType === "") {
+  if (email === "" || password === "" || firstName === "") {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
@@ -34,14 +34,14 @@ router.post("/signup", (req, res, next) => {
   }
 
   // This regular expression checks password for special characters and minimum length
- const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+  const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   if (!passwordRegex.test(password)) {
     res.status(400).json({
       message:
         "Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.",
     });
     return;
-  } 
+  }
 
   // Check the users collection if a user with the same email already exists
   User.findOne({ email })
@@ -58,15 +58,20 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, accountType });
+      return User.create({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+      });
     })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, accountType, _id } = createdUser;
+      const { email, firstName, _id, lastName } = createdUser;
 
       // Create a new object that doesn't expose the password
-      const user = { email, accountType, _id };
+      const user = { email, firstName, _id, lastName };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
