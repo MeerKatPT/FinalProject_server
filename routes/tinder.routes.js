@@ -9,7 +9,7 @@ const Job = require("../models/Job.model");
 router.get("/swipejobs", async (req, res, next) => {
   try {
     const resp = await axios.get(
-      "https://api.itjobs.pt/job/list.json?limit=25",
+      "https://api.itjobs.pt/job/list.json?limit=50",
       {
         headers: { Accept: "application/json", "Accept-Encoding": "identity" },
         params: { api_key: process.env.API_KEY },
@@ -34,8 +34,16 @@ router.get("/swipejobs/:id", async (req, res, next) => {
         params: { api_key: process.env.API_KEY },
       }
     );
+
+    const copyJob = await Job.create({
+      name: resp.data.company.name,
+      title: resp.data.title,
+      description: resp.data.body,
+    });
+
     console.log(resp.data.toString("utf8"));
-    res.status(200).json(resp.data);
+
+    res.status(200).json(copyJob);
   } catch (error) {
     next(error);
   }

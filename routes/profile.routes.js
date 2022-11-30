@@ -9,7 +9,13 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 router.get("/profile/:id", async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.findById(id).populate("favoriteJobs");
+    const user = await User.findById(id).populate("favoriteJobs").populate({
+      path: "favoriteJobs",
+      populate:{
+        path: "notes",
+        model: "Notes"
+      }
+    })
     res.status(200).json(user);
   } catch (error) {
     console.log(error);

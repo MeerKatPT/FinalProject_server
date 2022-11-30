@@ -5,7 +5,7 @@ const Notes = require("../models/Notes.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const User = require("../models/User.model");
 
-//POST route to create Notes on the specific job
+//CREATE NOTE
 router.post("/jobs/:id/notes", isAuthenticated, async (req, res, next) => {
   const { id } = req.params;
   const currentUser = req.payload._id;
@@ -20,13 +20,18 @@ router.post("/jobs/:id/notes", isAuthenticated, async (req, res, next) => {
       { $push: { notes: newNote._id } },
       { new: true }
     );
+    const updateUser = await User.findByIdAndUpdate(currentUser, {
+      $push: { favoriteJobs: updateJob._id },
+    });
+
     res.status(200).json(updateJob);
   } catch (error) {
     next(error);
   }
 });
 
-router.put("jobs/:notesId/notes", async (req, res, next) => {
+//GET ONE NOTE
+router.put("/notes/:notesId", async (req, res, next) => {
   const { notesId } = req.params;
   const { content } = req.body;
   try {
@@ -41,20 +46,37 @@ router.put("jobs/:notesId/notes", async (req, res, next) => {
   }
 });
 
-//DELETE 
-
-router.delete("/notes/:notesId/:jobId", isAuthenticated, async (req, res, next) => {
-  const currentUser = req.payload._id;
+//EDIT ONE NOTE
+router.get("/getnote/:notesId", async (req, res, next) => {
+  const { notesId } = req.params;
   try {
-    const { notesId, jobsId } = req.params;
-    await Notes.findByIdAndRemove(notesId);
-    const updateJob = await Job.findByIdAndUpdate(jobsId, {
-      $pull: { notes: notesId },
-    });
-    res.status(220).json({ message: `The note with the id ${notesId} was deleted.` });
+    const updatedNote = await Notes.findById(notesId);
+    res.status(200).json(updatedNote);
   } catch (error) {
     next(error);
   }
 });
+
+//DELETE
+router.delete(
+  "/notes/:notesId/:jobsId/:userId",
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const { notesId, jobsId, userId } = req.params;
+      await User.findByIdAndUpdate(userId, {
+        pull: { favoriteJobs: jobsId },
+      });
+      await Notes.findByIdAndRemove(notesId);
+      await Job.findByIdAndRemove(jobsId);
+
+      res
+        .status(220)
+        .json({ message: `The note with the id ${notesId} was deleted.` });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
